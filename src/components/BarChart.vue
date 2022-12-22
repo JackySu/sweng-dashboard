@@ -14,7 +14,7 @@ export default {
   myChart: null,
   methods: {
     showEcharts() {
-      this.myChart = echarts.init(this.$refs.bar);
+      this.myChart = echarts.init(this.$refs.bar, null, { renderer: 'svg' });
       const path = 'http://localhost:5000/stats/code_frequency';
       axios.get(path)
         .then((result) => {

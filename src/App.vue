@@ -1,16 +1,11 @@
 <script setup>
-import LineChartVue from './components/LineChart.vue';
-import BarChartVue from './components/BarChart.vue';
-import PieChartVue from './components/PieChart.vue';
-import Bar3DChartVue from './components/Bar3DChart.vue';
+  import ChartItemVue from './components/ChartItem.vue';
+  import SelectRepoVue from './components/SelectRepo.vue';
 </script>
 
 <template>
-  <LineChartVue />
-  <BarChartVue />
-  <PieChartVue />
-  <Bar3DChartVue />
-  <button class="ui red tertiary button">Red</button>
+  <ChartItemVue />
+  <SelectRepoVue />
 </template>
 
 <style scoped>

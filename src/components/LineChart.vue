@@ -1,5 +1,5 @@
 <template>
-  <div class="chart" ref="line"></div>
+  <div class="chart" ref="line" initOpts="initOpts"></div>
 </template>
 
 <script scoped>
@@ -18,7 +18,7 @@ export default {
   myChart: null,
   methods: {
     showEcharts() {
-      this.myChart = echarts.init(this.$refs.line);
+      this.myChart = echarts.init(this.$refs.line, null, { renderer: 'svg' });
       const path = 'http://localhost:5000/lineChart';
       axios.get(path)
         .then((result) => {
@@ -41,7 +41,6 @@ export default {
       const path = 'http://localhost:5000/lineDynamicData';
       axios.get(path)
         .then((result) => {
-          console.log(result.data);
           this.cpu_data.push([result.data.name, result.data.cpu_usage]);
           this.ram_data.push([result.data.name, result.data.ram_usage]);
           this.x_axis.push(result.data.name);
@@ -62,7 +61,7 @@ export default {
           });
         })
         .catch((error) => {
-          console.error(error);
+          console.error(error)
         });
     },
   },

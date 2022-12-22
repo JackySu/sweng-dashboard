@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="chart" ref="bar3d"></div>
-    <form class="ui form" @submit.prevent="getFiltered">
+    <form class="ui form" id="filterForm" @submit.prevent="getFiltered">
       <div class="three fields">
         <div class="field" id="start_date">
           <label>Start date</label>
@@ -45,7 +45,7 @@ export default {
   myChart: null,
   methods: {
     showEcharts() {
-      this.myChart = echarts.init(this.$refs.bar3d);
+      this.myChart = echarts.init(this.$refs.bar3d, null, { renderer: 'canvas'});
       const path = 'http://localhost:5000/filter_commits';
       axios.get(path)
         .then((result) => {
@@ -73,7 +73,7 @@ export default {
       });
     },
     getFiltered() {
-      let form = document.querySelector('form');
+      let form = document.querySelector('#filterForm');
       let parameters = {
         start: form.elements.start.value,
         end: form.elements.end.value
