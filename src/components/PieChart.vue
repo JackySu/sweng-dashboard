@@ -1,5 +1,5 @@
 <template>
-  <div class="chart" ref="pie" initOpts="initOpts"></div>
+  <div class="chart" ref="pie" id="pieChart"></div>
 </template>
 <script scoped>
 import * as echarts from 'echarts'
@@ -26,6 +26,10 @@ export default {
         .catch((error) => {
           console.error(error);
         });
+    },
+    reloadChart() {
+      this.myChart.dispose();
+      this.showEcharts();
     }
   },
   mounted() {

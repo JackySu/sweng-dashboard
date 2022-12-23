@@ -1,5 +1,7 @@
 <template>
-  <div class="chart" ref="bar"></div>
+  <div>
+    <div class="chart" ref="bar" id="barChart"></div>
+  </div>
 </template>
 <script scoped>
 import * as echarts from 'echarts'
@@ -19,11 +21,15 @@ export default {
       axios.get(path)
         .then((result) => {
           this.option = result.data;
-          this.myChart.setOption(this.option);  
+          this.myChart.setOption(this.option);
         })
         .catch((error) => {
           console.error(error);
         });
+    },
+    reloadChart() {
+      this.myChart.dispose();
+      this.showEcharts();
     }
   },
   mounted() {

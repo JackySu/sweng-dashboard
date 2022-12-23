@@ -1,6 +1,6 @@
 <script setup>
-  import ChartItemVue from './components/ChartItem.vue';
   import SelectRepoVue from './components/SelectRepo.vue';
+  import ChartItemVue from './components/ChartItem.vue';
 </script>
 
 <template>

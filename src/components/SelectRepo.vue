@@ -1,22 +1,25 @@
+
 <template>
-  <form class="ui form" id="selectRepo" @submit.prevent="selectRepo">
+  <div class="container">
+    <form class="ui form" id="selectRepo" @submit.prevent="selectRepo">
       <div class="two fields">
         <div class="field" id="end_date">
           <label>Repository name</label>
 
           <div class="ui input left icon">
-            <i class="calendar icon"></i>
+            <i class="edit icon"></i>
             <input name="repo_name" type="text" placeholder="Repo Name">
           </div>
         </div>
         <div class="field" style="margin-top: 25px;">
           <button type="submit" class="ui teal right labeled icon button">
             <i class="github icon"></i>
-            Filter
+            Select
           </button>
         </div>
       </div>
     </form>
+  </div>
 </template>
 
 <script scoped>
@@ -44,7 +47,8 @@ export default {
         }]
       })
         .then((result) => {
-          console.log(result.data)
+          console.log(result.data);
+          
         })
         .catch((error) => {
           console.log(error)

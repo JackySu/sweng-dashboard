@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="chart" ref="bar3d"></div>
+    <div class="chart" ref="bar3d" id="b3dChart"></div>
     <form class="ui form" id="filterForm" @submit.prevent="getFiltered">
       <div class="three fields">
         <div class="field" id="start_date">
@@ -84,6 +84,10 @@ export default {
           this.option = result.data;
           this.myChart.setOption(this.option);
         });
+    },
+    reloadChart() {
+      this.myChart.dispose();
+      this.showEcharts();
     }
   },
   mounted() {

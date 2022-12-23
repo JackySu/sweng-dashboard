@@ -21,7 +21,6 @@ from functools import cache
 
 
 JSON_COMMITS = {}
-COMMITS_INIT = False
 
 
 app = Flask(__name__)
@@ -84,7 +83,7 @@ def exception_handler(func):
             ret = func(*args, **kwargs)
             return ret
         except Exception as e:
-            print(f"[Front-end] {func.__name__} throws exception as {e}")
+            print(f"\033[0;31;40m{func.__name__} throws exception as {e}\033[0m")
     return inner_function
 
 
@@ -118,13 +117,14 @@ def fetch_json(category):
     else:
         if param:
             link = link + '?' + '&'.join([str(key) + '=' + str(value) for key, value in param.items()])
-        response = requests.get(link, headers=headers)
 
-        if response.status_code == 200:
-            byteStream = response.content
-            return json.loads(byteStream)
-        else:
-            raise RuntimeWarning(f"[Back-end] {formatted_local_time()} Error when requesting {category} with status code {response.status_code}\ncontent: {response.content}")
+        while True:
+            response = requests.get(link, headers=headers)
+            if response.status_code == 200:
+                byteStream = response.content
+                return json.loads(byteStream)
+            else:
+                raise RuntimeWarning(f"[Back-end] {formatted_local_time()} Error when requesting {category} with status code {response.status_code}\ncontent: {response.content}")
 
 
 @exception_handler
@@ -330,11 +330,8 @@ def get_commits_data():
     for commit in data:
         name = commit['commit']['author']['name']
         time_ = commit['commit']['author']['date']
-        url = commit['commit']['url']
-        JSON_COMMITS[time_] = [name, url]
+        JSON_COMMITS[time_] = name
 
-    global COMMITS_INIT
-    COMMITS_INIT = True
     response = jsonify(JSON_COMMITS)
     return response
 
@@ -342,18 +339,16 @@ def get_commits_data():
 @exception_handler
 @app.route('/filter_commits', methods=['POST', 'GET'])
 def filter_commits():
-    global COMMITS_INIT
     start_time = request.args.get('start', formatted_utc_time(0)[:10])
     end_time = request.args.get('end', formatted_utc_time()[:10])
 
-    if not COMMITS_INIT:
-        get_commits_data()
+    get_commits_data()
     # assume data key is time
     result = {}
     for date in JSON_COMMITS.keys():
         day = date[:10]
         if day >= start_time and day <= end_time:
-            name = str(JSON_COMMITS[date][0])
+            name = str(JSON_COMMITS[date])
             result[f'{day} {name}'] = result[f'{day} {name}'] + 1 if f'{day} {name}' in result.keys() else 1
 
     datas = []

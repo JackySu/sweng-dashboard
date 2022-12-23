@@ -1,5 +1,7 @@
 <template>
-  <div class="chart" ref="line" initOpts="initOpts"></div>
+  <div>
+    <div class="chart" ref="line" id="lineChart"></div>
+  </div>
 </template>
 
 <script scoped>
