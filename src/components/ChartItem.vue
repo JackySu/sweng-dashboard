@@ -1,9 +1,6 @@
 
 <script setup>
-  import LineChartVue from './LineChart.vue';
-  import BarChartVue from './BarChart.vue';
-  import PieChartVue from './PieChart.vue';
-  import Bar3DChartVue from './Bar3DChart.vue';
+  import ChartLoaderVue from './ChartLoader.vue';
 </script>
 
 <template>
@@ -34,10 +31,10 @@
     </button>
     <br/>
     <div>
-      <LineChartVue v-if="graphNumber == 0"></LineChartVue>
-      <BarChartVue v-if="graphNumber == 1"></BarChartVue>
-      <PieChartVue v-if="graphNumber == 2"></PieChartVue>
-      <Bar3DChartVue v-if="graphNumber == 3"></Bar3DChartVue>
+      <ChartLoaderVue :selectChart="'LineChartVue'" v-if="graphNumber == 0" />
+      <ChartLoaderVue :selectChart="'BarChartVue'" v-if="graphNumber == 1" />
+      <ChartLoaderVue :selectChart="'PieChartVue'" v-if="graphNumber == 2" />
+      <ChartLoaderVue :selectChart="'Bar3DChartVue'" v-if="graphNumber == 3" />
     </div>
   </div>
 </template>
@@ -48,6 +45,9 @@
       return {
         graphNumber: 0,
       }
+    },
+    components: {
+      ChartLoaderVue
     }
   }
 </script>

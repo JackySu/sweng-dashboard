@@ -45,16 +45,25 @@ export default {
   myChart: null,
   methods: {
     showEcharts() {
-      this.myChart = echarts.init(this.$refs.bar3d, null, { renderer: 'canvas'});
-      const path = 'http://localhost:5000/filter_commits';
-      axios.get(path)
-        .then((result) => {
-          this.option = result.data;
-          this.myChart.setOption(this.option);
+      let promise = new Promise((resolve, reject) => {
+        this.myChart = echarts.init(this.$refs.bar3d, null, { renderer: 'canvas'});
+        const path = 'http://localhost:5000/filter_commits';
+        axios.get(path)
+          .then((result) => {
+            this.option = result.data;
+            this.myChart.setOption(this.option);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+          this.myChart.on('finished',() => {
+          resolve();
         })
-        .catch((error) => {
-          console.error(error);
-        });
+      });
+      promise.then(() => {
+        console.log("Finished loading Bar3DChart");
+        this.$emit('loaded', true);
+      });
     },
     showCalendar() {
       $('#rangestart').calendar({
@@ -91,6 +100,7 @@ export default {
     }
   },
   mounted() {
+    this.$emit('loaded', false);
     this.showEcharts();
     this.showCalendar();  
   }

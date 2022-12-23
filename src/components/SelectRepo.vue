@@ -11,7 +11,7 @@
           </div>
         </div>
         <div class="field" style="margin-top: 25px;">
-          <button type="submit" class="ui teal right labeled icon button">
+          <button type="submit" class="ui black tertiary button">
             <i class="github icon"></i>
             Select
           </button>

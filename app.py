@@ -94,7 +94,7 @@ def fetch_json(category):
         streams = []
         i = 1
         while True:
-            link_final = link + f'?page={i}'
+            link_final = link + f'?per_page=999&page={i}'
             response = requests.get(link_final, headers=headers)
             if response.status_code == 200:
                 byteStream = response.content
@@ -104,7 +104,6 @@ def fetch_json(category):
                 i += 1
             else:
                 raise RuntimeWarning(f"[Back-end] Error when requesting {category} with status code {response.status_code}\n{response.content}")
-
         results = []
         for stream in streams:
             results.extend(json.loads(stream))
@@ -123,157 +122,6 @@ def fetch_json(category):
                 raise RuntimeWarning(f"[Back-end] {formatted_local_time()} Error when requesting {category} with status code {response.status_code}\ncontent: {response.content}")
 
 
-@exception_handler
-def bar_base() -> Bar:
-    data = fetch_json("stats/code_frequency")
-
-    addition = []
-    deletion = []
-    timeline = []
-    for item in data:
-        dt = datetime.datetime.fromtimestamp(item[0])
-        timeline.append(dt)
-        if (item[1] + item[2] == 0):
-            addition.append({'value': item[1], 'percent': item[1]})
-            deletion.append({'value': item[2], 'percent': item[2]})
-        else:
-            addition.append({'value': item[1], 'percent': item[1] / (item[1] - item[2])})
-            deletion.append({'value': item[2], 'percent': item[2] / (item[2] - item[1])})
-
-    b = (
-        Bar(init_opts=opts.InitOpts(theme=ThemeType.LIGHT))
-        .add_xaxis(timeline)
-        .add_yaxis("Additions", addition, stack="stack1", category_gap="30%", label_opts=opts.LabelOpts(position="top"),
-            itemstyle_opts=opts.ItemStyleOpts(color="#FFBF00")
-        )
-        .add_yaxis("Deletions", deletion, stack="stack1", category_gap="30%", label_opts=opts.LabelOpts(position="bottom"),
-            itemstyle_opts=opts.ItemStyleOpts(color="#5484AB")
-        )
-        .set_global_opts(
-            datazoom_opts=opts.DataZoomOpts(
-                is_show=True,
-                is_zoom_lock=False,
-                range_start=0,
-                range_end=10,
-            ),
-        )
-    )
-
-    return b
-
-
-@exception_handler
-def pie_base() -> Pie:
-    temp_dict = {}
-    data = fetch_json("stats/contributors")
-
-    for item in data:
-        contributor = item['author']['login']
-        commits = item['total']
-        temp_dict[contributor] = commits
-
-    data_pair = [list(z) for z in zip(temp_dict.keys(), temp_dict.values())]
-
-    # sort by number of commits
-    data_pair.sort(key=lambda x: x[1])
-
-    pie = (
-        Pie(init_opts=opts.InitOpts(width="700px", height="600px"))
-        .add(
-            series_name="Contributor commits",
-            data_pair=data_pair,
-            rosetype="radius",
-            radius=["30%", "65%"],
-            center=["50%", "50%"],
-            label_opts=opts.LabelOpts(is_show=False, position="center"),
-        )
-        .set_global_opts(
-            title_opts=opts.TitleOpts(
-                title="Contribution Graph",
-                pos_left="center",
-                pos_bottom=20,
-                title_textstyle_opts=opts.TextStyleOpts(color="#000"),
-            ),
-            legend_opts=opts.LegendOpts(is_show=False),
-        )
-        .set_series_opts(
-            tooltip_opts=opts.TooltipOpts(
-                trigger="item", formatter="{a} <br/>{b}: {c} ({d}%)"
-            ),
-            label_opts=opts.LabelOpts(color="rgba(145, 145, 145, 0.9)"),
-        )
-    )
-
-    return pie
-
-
-@exception_handler
-def line_base() -> Line:
-
-    line = (
-        Line(init_opts=opts.InitOpts(width="500px", height="400px"))
-        .add_xaxis(
-            xaxis_data=[formatted_local_time()],
-        )
-        .add_yaxis(
-            series_name="CPU Usage",
-            y_axis=[psutil.cpu_percent(percpu=False)],
-            is_smooth=True,
-        )
-        .add_yaxis(
-            series_name="RAM Usage",
-            y_axis=[psutil.virtual_memory().percent],
-            is_smooth=True,
-        )
-        .set_global_opts(
-            legend_opts=opts.LegendOpts(
-                is_show=True,
-                pos_left="50%",
-            ),
-            title_opts=opts.TitleOpts(title="Resources Monitor", pos_left="10%"),
-            xaxis_opts=opts.AxisOpts(
-                is_show=True,
-            ),
-            yaxis_opts=opts.AxisOpts(
-                type_="value",
-                min_interval=20,
-                max_=100,
-                axistick_opts=opts.AxisTickOpts(is_show=True),
-                splitline_opts=opts.SplitLineOpts(is_show=True),
-            ),
-            datazoom_opts=opts.DataZoomOpts(
-                is_show=True,
-                is_zoom_lock=False,
-                range_start=0,
-                range_end=100,
-            ),
-            tooltip_opts=opts.TooltipOpts(
-                is_show=True,
-            ),
-            toolbox_opts=opts.ToolboxOpts(is_show=False),
-        )
-        .set_series_opts(label_opts=opts.LabelOpts(is_show=False, formatter="{@[1]}%", position="top"),  # set is_show=True to display
-                         markpoint_opts=opts.MarkPointOpts(
-                             data=[
-                                 opts.MarkPointItem(type_="max")
-                             ]
-                         ),
-                         markline_opts=opts.MarkLineOpts(
-                             data=[
-                                 opts.MarkLineItem(type_="average")
-                             ]
-                         ),
-        )
-    )
-    return line
-
-
-@app.route("/lineChart")
-def get_line_chart():
-    c = line_base()
-    return c.dump_options_with_quotes()
-
-
 @app.route("/lineDynamicData")
 def update_line_data():
     data = {"name": formatted_local_time(), "cpu_usage": psutil.cpu_percent(percpu=False), "ram_usage": psutil.virtual_memory().percent}
@@ -290,8 +138,25 @@ def update_line_data():
 @exception_handler
 @app.route("/stats/contributors")
 def get_stats_contributors_data():
-    p = pie_base()
-    return p.dump_options_with_quotes()
+    temp_dict = {}
+    data = fetch_json("stats/contributors")
+
+    for item in data:
+        contributor = item['author']['login']
+        commits = item['total']
+        temp_dict[contributor] = commits
+
+    data_pair = sorted(temp_dict.items(), key=lambda x: x[1])
+    res = []
+    legends = []
+    for data_point in data_pair:
+        legends.append(data_point[0])
+        res.append({
+            'name': data_point[0],
+            'value': data_point[1]
+        })
+
+    return {'proportions': res, 'legends': legends}
 
 
 @exception_handler
@@ -314,8 +179,22 @@ def get_issues_data():
 @exception_handler
 @app.route("/stats/code_frequency")
 def get_stats_code_frequency_data():
-    b = bar_base()
-    return b.dump_options_with_quotes()
+    data = fetch_json("stats/code_frequency")
+
+    addition = []
+    deletion = []
+    timeline = []
+    for item in data:
+        dt = datetime.datetime.fromtimestamp(item[0])
+        timeline.append(dt)
+        if (item[1] + item[2] == 0):
+            addition.append({'value': item[1], 'percent': item[1]})
+            deletion.append({'value': item[2], 'percent': item[2]})
+        else:
+            addition.append({'value': item[1], 'percent': item[1] / (item[1] - item[2])})
+            deletion.append({'value': item[2], 'percent': item[2] / (item[2] - item[1])})
+
+    return {'timeline': timeline, 'addition': addition, 'deletion': deletion}
 
 
 @exception_handler
