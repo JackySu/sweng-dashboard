@@ -12,11 +12,10 @@ from flask import Flask, request
 from flask_cors import CORS
 
 
-from pyecharts import options as opts
-from pyecharts.globals import ThemeType
-from pyecharts.charts import Line, Pie, Bar, Bar3D
+from collections import defaultdict
 
 
+MAX_ERROR_TIMES = 10
 JSON_COMMITS = {}
 
 
@@ -66,12 +65,17 @@ def search_github_repository(repo_name):
         "order": "desc"   # Order the results in descending order
     }
 
-    response = requests.get(base_url, params=params)
-    if response.status_code == 200:
-        results = response.json()["items"]
-        return results[0] if len(results) > 0 else None
-    else:
-        return None
+    errors = 0
+    while errors < MAX_ERROR_TIMES:
+        response = requests.get(base_url, params=params)
+        if response.status_code == 200:
+            results = response.json()["items"]
+            return results[0] if len(results) > 0 else None
+        else:
+            errors += 1
+            time.sleep(1)
+
+    raise RuntimeWarning(f"≥{MAX_ERROR_TIMES} times of error when searching for repo {repo_name}")
 
 
 def exception_handler(func):
@@ -90,10 +94,11 @@ def fetch_json(category):
     param = params[category]
     link = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/{category}'
 
+    errors = 0
     if category == 'commits':
         streams = []
         i = 1
-        while True:
+        while errors < MAX_ERROR_TIMES:
             link_final = link + f'?per_page=999&page={i}'
             response = requests.get(link_final, headers=headers)
             if response.status_code == 200:
@@ -103,7 +108,12 @@ def fetch_json(category):
                 streams.append(byteStream)
                 i += 1
             else:
-                raise RuntimeWarning(f"[Back-end] Error when requesting {category} with status code {response.status_code}\n{response.content}")
+                errors += 1
+                time.sleep(1)
+
+        if errors >= MAX_ERROR_TIMES:
+            raise RuntimeWarning(f"[Back-end] ≥{MAX_ERROR_TIMES} Errors when requesting {category} with status code {response.status_code}\n{response.content}")
+
         results = []
         for stream in streams:
             results.extend(json.loads(stream))
@@ -113,13 +123,17 @@ def fetch_json(category):
         if param:
             link = link + '?' + '&'.join([str(key) + '=' + str(value) for key, value in param.items()])
 
-        while True:
+        while errors < MAX_ERROR_TIMES:
             response = requests.get(link, headers=headers)
             if response.status_code == 200:
                 byteStream = response.content
                 return json.loads(byteStream)
             else:
-                raise RuntimeWarning(f"[Back-end] {formatted_local_time()} Error when requesting {category} with status code {response.status_code}\ncontent: {response.content}")
+                errors += 1
+                time.sleep(1)
+
+        if errors >= MAX_ERROR_TIMES:
+            raise RuntimeWarning(f"[Back-end] {formatted_local_time()} Error when requesting {category} with status code {response.status_code}\ncontent: {response.content}")
 
 
 @app.route("/lineDynamicData")
@@ -219,38 +233,21 @@ def filter_commits():
 
     get_commits_data()
     # assume data key is time
-    result = {}
+    counter = defaultdict(lambda: defaultdict(int))
+    names = set()
     for date in JSON_COMMITS.keys():
         day = date[:10]
         if day >= start_time and day <= end_time:
             name = str(JSON_COMMITS[date])
-            result[f'{day} {name}'] = result[f'{day} {name}'] + 1 if f'{day} {name}' in result.keys() else 1
+            names.add(name)
+            counter[day][name] += 1
 
-    datas = []
-    for k, v in result.items():
-        ls = list(k.split(' '))
-        datas.append([ls[0], ls[1], v])
+    result = []
+    for day in counter.keys():
+        for name, count in counter[day].items():
+            result.append([day, name, count])
 
-    b3d = (
-        Bar3D()
-        .add(
-            "Commits",
-            datas,
-            xaxis3d_opts=opts.Axis3DOpts([d[0] for d in datas], type_="category"),
-            yaxis3d_opts=opts.Axis3DOpts([d[1] for d in datas], type_="category"),
-            zaxis3d_opts=opts.Axis3DOpts(type_="value"),
-        )
-        .set_global_opts(
-            visualmap_opts=opts.VisualMapOpts(max_=20),
-            title_opts=opts.TitleOpts(title="Commits Heatmap"),
-        )
-        .set_series_opts(tooltip_opts=opts.TooltipOpts(
-                    trigger="item", formatter="{a} made {b}<br/>on {c} times"
-                ),
-        )
-    )
-
-    return b3d.dump_options_with_quotes()
+    return {'result': result, 'names': list(names)}
 
 
 @exception_handler
@@ -263,9 +260,10 @@ def select_repo():
 
     repo = search_github_repository(params['repo_name'])
     if repo:
-        owner_name = list(repo['full_name'].split('/'))
+        full_name = repo['full_name']
+        owner_name = list(full_name.split('/'))
         REPO_OWNER, REPO_NAME = owner_name[0], owner_name[1]
-        return 'Success'
+        return full_name
     else:
         return 'Invalid'
 

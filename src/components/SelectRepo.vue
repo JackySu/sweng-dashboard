@@ -7,7 +7,7 @@
           <label>Repository name</label>
           <div class="ui input left icon">
             <i class="edit icon"></i>
-            <input name="repo_name" type="text" placeholder="Repo Name">
+            <input id="repo_name" name="repo_name" type="text" placeholder="Repo Name">
           </div>
         </div>
         <div class="field" style="margin-top: 25px;">
@@ -46,7 +46,8 @@ export default {
         }]
       })
         .then((result) => {
-          console.log(result.data);
+          console.log("Spectate on repo " + result.data);
+          document.querySelector('#repo_name').value=result.data;
         })
         .catch((error) => {
           console.log(error)
