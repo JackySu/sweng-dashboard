@@ -1,11 +1,10 @@
 
 <template>
-  <div class="container">
+  <div>
     <form class="ui form" id="selectRepo" @submit.prevent="selectRepo">
       <div class="two fields">
         <div class="field" id="end_date">
           <label>Repository name</label>
-
           <div class="ui input left icon">
             <i class="edit icon"></i>
             <input name="repo_name" type="text" placeholder="Repo Name">
@@ -48,7 +47,6 @@ export default {
       })
         .then((result) => {
           console.log(result.data);
-          
         })
         .catch((error) => {
           console.log(error)

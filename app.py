@@ -17,9 +17,6 @@ from pyecharts.globals import ThemeType
 from pyecharts.charts import Line, Pie, Bar, Bar3D
 
 
-from functools import cache
-
-
 JSON_COMMITS = {}
 
 
@@ -88,7 +85,6 @@ def exception_handler(func):
 
 
 @exception_handler
-@cache
 def fetch_json(category):
 
     param = params[category]
