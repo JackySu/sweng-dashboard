@@ -55,28 +55,6 @@ def formatted_utc_time(t=None) -> str:
     return d.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
-def search_github_repository(repo_name):
-    base_url = "https://api.github.com/search/repositories"
-
-    params = {
-        "q": repo_name,  # The search query is the repository name
-        "sort": "stars",  # Sort the results by number of stars
-        "order": "desc"   # Order the results in descending order
-    }
-
-    errors = 0
-    while errors < MAX_ERROR_TIMES:
-        response = requests.get(base_url, params=params)
-        if response.status_code == 200:
-            results = response.json()["items"]
-            return results[0] if len(results) > 0 else None
-        else:
-            errors += 1
-            time.sleep(1)
-
-    raise RuntimeWarning(f"≥{MAX_ERROR_TIMES} times of error when searching for repo {repo_name}")
-
-
 def exception_handler(func):
     def inner_function(*args, **kwargs):
         try:

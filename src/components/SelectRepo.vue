@@ -71,4 +71,7 @@ export default {
   #selectRepo {
     width: 400px;
   }
+  label {
+    padding: 5px;
+  }
 </style>

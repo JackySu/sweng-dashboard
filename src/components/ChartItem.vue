@@ -4,7 +4,7 @@
 </script>
 
 <template>
-  <div class="container">
+  <div class="chart_container">
     <button
       class="ui red tertiary button"
       @click="graphNumber=0"

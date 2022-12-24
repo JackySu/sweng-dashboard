@@ -1,5 +1,5 @@
 <template>
-  <div id="intro">
+  <div id="introduction">
     <md-block>{{ blockContent }}</md-block>
     <br/>
     <CodeBlockVue />
@@ -21,9 +21,8 @@ import CodeBlockVue from "./CodeBlock.vue";
 export default {
   data() {
     return {
-      blockContent: `## Repository Measurer
-Catch the digital shadows of your Repository
-Above charts are a quick reveal of the stats among the repository
+      blockContent: `## Measuring changes
+A modern visualization method revealing the trend among the stats of repositories
 
 ## Source of Data
 All the data of the repo is fetched from the [GitHub Rest API](https://docs.github.com/en/rest)
@@ -38,8 +37,8 @@ With **Python** as our back-end solution, we retrieve the data we want with simp
 </script>
 
 <style scope>
-  #intro {
-    width: 1000px;
+  #introduction {
+    width: 100%;
   }
   md-block {
     width: 100%;
