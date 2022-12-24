@@ -1,11 +1,13 @@
 <script setup>
   import SelectRepoVue from './components/SelectRepo.vue';
   import ChartItemVue from './components/ChartItem.vue';
+  import MarkdownBlockVue from './components/MarkdownBlock.vue';
 </script>
 
 <template>
   <ChartItemVue />
   <SelectRepoVue />
+  <MarkdownBlockVue />
 </template>
 
 <style scoped>

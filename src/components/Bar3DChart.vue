@@ -205,7 +205,7 @@ export default {
           "title": [
             {
               "text": "Commits Heatmap",
-              "padding": 5,
+              "padding": 30,
               "itemGap": 10
             }
           ]
@@ -278,3 +278,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  #b3dchart {
+    padding-left: 30px;
+  }
+</style>

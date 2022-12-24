@@ -12,6 +12,7 @@
     "axios": "^1.2.1",
     "echarts": "^4.9.0",
     "echarts-gl": "^1.1.2",
+    "md-block": "^0.0.1",
     "vue": "^3.2.45"
   },
   "devDependencies": {

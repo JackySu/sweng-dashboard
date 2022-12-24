@@ -1,9 +1,9 @@
 
 <template>
   <div>
-    <form class="ui form" id="selectRepo" @submit.prevent="selectRepo">
+    <form class="ui form" id="selectRepo" @submit="selectRepo">
       <div class="two fields">
-        <div class="field" id="end_date">
+        <div class="field">
           <label>Repository name</label>
           <div class="ui input left icon">
             <i class="edit icon"></i>
@@ -56,3 +56,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  #selectRepo {
+    width: 400px;
+  }
+</style>
