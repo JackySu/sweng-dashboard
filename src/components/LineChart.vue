@@ -24,14 +24,6 @@ export default {
       let promise = new Promise((resolve, reject) => {
         this.myChart = echarts.init(this.$refs.line, null, { renderer: 'svg' });
         this.option = {
-          "animation": true,
-          "animationThreshold": 2000,
-          "animationDuration": 1000,
-          "animationEasing": "cubicOut",
-          "animationDelay": 0,
-          "animationDurationUpdate": 300,
-          "animationEasingUpdate": "cubicOut",
-          "animationDelayUpdate": 0,
           "color": [
             "#c23531",
             "#2f4554",
@@ -71,22 +63,12 @@ export default {
               "data": [
                 []
               ],
-              "hoverAnimation": true,
-              "label": {
-                "show": false,
-                "position": "top",
-                "margin": 8,
-                "formatter": '{@[1]}%'
-              },
               "lineStyle": {
                 "show": true,
-                "width": 1,
-                "opacity": 1,
+                "width": 2,
+                "opacity": 0.85,
                 "curveness": 0,
                 "type": "solid"
-              },
-              "areaStyle": {
-                "opacity": 0
               },
               "markPoint": {
                 "label": {
@@ -115,14 +97,6 @@ export default {
                   }
                 ]
               },
-              "zlevel": 0,
-              "z": 0,
-              "rippleEffect": {
-                "show": true,
-                "brushType": "stroke",
-                "scale": 2.5,
-                "period": 4
-              }
             },
             {
               "type": "line",
@@ -137,21 +111,12 @@ export default {
                 []
               ],
               "hoverAnimation": true,
-              "label": {
-                "show": false,
-                "position": "top",
-                "margin": 8,
-                "formatter": "{@[1]}%"
-              },
               "lineStyle": {
                 "show": true,
-                "width": 1,
-                "opacity": 1,
+                "width": 2,
+                "opacity": 0.85,
                 "curveness": 0,
                 "type": "solid"
-              },
-              "areaStyle": {
-                "opacity": 0
               },
               "markPoint": {
                 "label": {
@@ -180,14 +145,6 @@ export default {
                   }
                 ]
               },
-              "zlevel": 0,
-              "z": 0,
-              "rippleEffect": {
-                "show": true,
-                "brushType": "stroke",
-                "scale": 2.5,
-                "period": 4
-              }
             }
           ],
           "legend": [
@@ -223,7 +180,8 @@ export default {
               "fontSize": 14
             },
             "borderWidth": 0,
-            "padding": 5
+            "padding": 5,
+            formatter: "Usage: {c}%"
           },
           "xAxis": [
             {
@@ -290,7 +248,7 @@ export default {
             }
           ],
           "toolbox": {
-            "show": false,
+            "show": true,
             "orient": "horizontal",
             "itemSize": 15,
             "itemGap": 10,
@@ -303,10 +261,6 @@ export default {
                 "show": true,
                 "title": "保存为图片",
                 "pixelRatio": 1
-              },
-              "restore": {
-                "show": true,
-                "title": "还原"
               },
               "dataView": {
                 "show": true,
@@ -324,44 +278,20 @@ export default {
                 "buttonColor": "#c23531",
                 "buttonTextColor": "#fff"
               },
-              "dataZoom": {
-                "show": true,
-                "title": {
-                  "zoom": "区域缩放",
-                  "back": "区域缩放还原"
-                },
-                "icon": {},
-                "xAxisIndex": false,
-                "yAxisIndex": false,
-                "filterMode": "filter"
-              },
               "magicType": {
                 "show": true,
                 "type": [
                   "line",
                   "bar",
-                  "stack",
                   "tiled"
                 ],
                 "title": {
                   "line": "切换为折线图",
                   "bar": "切换为柱状图",
-                  "stack": "切换为堆叠",
                   "tiled": "切换为平铺"
                 },
                 "icon": {}
               },
-              "brush": {
-                "icon": {},
-                "title": {
-                  "rect": "矩形选择",
-                  "polygon": "圈选",
-                  "lineX": "横向选择",
-                  "lineY": "纵向选择",
-                  "keep": "保持选择",
-                  "clear": "清除选择"
-                }
-              }
             }
           },
           "dataZoom": {

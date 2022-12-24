@@ -202,6 +202,39 @@ export default {
               "rotateSensitivity": 1
             }
           },
+          "toolbox": {
+            "show": true,
+            "orient": "horizontal",
+            "itemSize": 15,
+            "itemGap": 10,
+            "left": "80%",
+            "feature": {
+              "saveAsImage": {
+                "type": "png",
+                "backgroundColor": "auto",
+                "connectedBackgroundColor": "#fff",
+                "show": true,
+                "title": "保存为图片",
+                "pixelRatio": 1
+              },
+              "dataView": {
+                "show": true,
+                "title": "数据视图",
+                "readOnly": false,
+                "lang": [
+                  "数据视图",
+                  "关闭",
+                  "刷新"
+                ],
+                "backgroundColor": "#fff",
+                "textareaColor": "#fff",
+                "textareaBorderColor": "#333",
+                "textColor": "#000",
+                "buttonColor": "#c23531",
+                "buttonTextColor": "#fff"
+              },
+            }
+          },
           "title": [
             {
               "text": "Commits Heatmap",

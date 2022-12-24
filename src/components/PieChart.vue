@@ -18,14 +18,6 @@ export default {
       let promise = new Promise((resolve, reject) => {
         this.myChart = echarts.init(this.$refs.pie, null, { renderer: 'svg' });
         this.option = {
-          "animation": true,
-          "animationThreshold": 2000,
-          "animationDuration": 1000,
-          "animationEasing": "cubicOut",
-          "animationDelay": 0,
-          "animationDurationUpdate": 300,
-          "animationEasingUpdate": "cubicOut",
-          "animationDelayUpdate": 0,
           "color": [
             "#c23531",
             "#2f4554",
@@ -52,8 +44,9 @@ export default {
             "#6950a1",
             "#918597"
           ],
-          "series": [{
+          series: [{
             type: "pie",
+            avoidLabelOverlap: false,
             "name": "Contributor commits",
             "clockwise": true,
             "data": [],
@@ -65,14 +58,11 @@ export default {
               "50%",
               "50%"
             ],
-            "roseType": "radius",
-            "label": {
-              "show": true,
-              "position": "top",
-              "color": "rgba(145, 145, 145, 0.9)",
-              "margin": 8
+            roseType: "radius",
+            labelLine: {
+              show: true
             },
-            "tooltip": {
+            tooltip: {
               "show": true,
               "trigger": "item",
               "triggerOn": "mousemove|click",
@@ -88,7 +78,7 @@ export default {
                 "fontSize": 14
               },
               "borderWidth": 0,
-              "padding": 5
+              "padding": 5,
             },
             "rippleEffect": {
               "show": true,
@@ -97,33 +87,6 @@ export default {
               "period": 4
             }
           }],
-          "legend": [{
-            "data": [],
-            "selected": {
-            },
-            "show": true,
-            "padding": 5,
-            "itemGap": 5,
-            "itemWidth": 15,
-            "itemHeight": 7
-          }],
-          "tooltip": {
-            "show": true,
-            "trigger": "item",
-            "triggerOn": "mousemove|click",
-            "axisPointer": {
-              "type": "line"
-            },
-            "showContent": true,
-            "alwaysShowContent": false,
-            "showDelay": 0,
-            "hideDelay": 100,
-            "textStyle": {
-              "fontSize": 14
-            },
-            "borderWidth": 0,
-            "padding": 5
-          },
           "title": [{
             "text": "Contribution Graph",
             "left": "center",
@@ -133,7 +96,54 @@ export default {
             "textStyle": {
               "color": "#000"
             }
-          }]
+          }],
+          "toolbox": {
+            "show": true,
+            "orient": "horizontal",
+            "itemSize": 15,
+            "itemGap": 10,
+            "left": "80%",
+            "feature": {
+              "saveAsImage": {
+                "type": "png",
+                "backgroundColor": "auto",
+                "connectedBackgroundColor": "#fff",
+                "show": true,
+                "title": "保存为图片",
+                "pixelRatio": 1
+              },
+              "dataView": {
+                "show": true,
+                "title": "数据视图",
+                "readOnly": false,
+                "lang": [
+                  "数据视图",
+                  "关闭",
+                  "刷新"
+                ],
+                "backgroundColor": "#fff",
+                "textareaColor": "#fff",
+                "textareaBorderColor": "#333",
+                "textColor": "#000",
+                "buttonColor": "#c23531",
+                "buttonTextColor": "#fff"
+              },
+              "magicType": {
+                "show": true,
+                "type": [
+                  "line",
+                  "bar",
+                  "tiled"
+                ],
+                "title": {
+                  "line": "切换为折线图",
+                  "bar": "切换为柱状图",
+                  "tiled": "切换为平铺"
+                },
+                "icon": {}
+              },
+            }
+          },
         };
         this.myChart.setOption(this.option);
         const path = 'http://localhost:50060/stats/contributors';

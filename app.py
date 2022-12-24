@@ -16,7 +16,6 @@ from collections import defaultdict
 
 
 MAX_ERROR_TIMES = 10
-JSON_COMMITS = {}
 
 
 app = Flask(__name__)
@@ -217,8 +216,6 @@ def get_stats_code_frequency_data():
     return {'timeline': timeline, 'addition': addition, 'deletion': deletion}
 
 
-@exception_handler
-@app.route("/commits")
 def get_commits_data(owner=None, name=None):
     if owner is None and name is None:
         owner = REPO_OWNER
@@ -226,13 +223,13 @@ def get_commits_data(owner=None, name=None):
 
     data = fetch_json(owner, name, "commits")
 
+    result = {}
     for commit in data:
         name = commit['commit']['author']['name']
         time_ = commit['commit']['author']['date']
-        JSON_COMMITS[time_] = name
+        result[time_] = name
 
-    response = jsonify(JSON_COMMITS)
-    return response
+    return result
 
 
 @exception_handler
@@ -244,14 +241,14 @@ def filter_commits():
     owner = request.args.get('owner')
     name = request.args.get('name')
 
-    get_commits_data(owner, name)
+    result = get_commits_data(owner, name)
     # assume data key is time
     counter = defaultdict(lambda: defaultdict(int))
     names = set()
-    for date in JSON_COMMITS.keys():
+    for date in result.keys():
         day = date[:10]
         if day >= start_time and day <= end_time:
-            name = str(JSON_COMMITS[date])
+            name = str(result[date])
             names.add(name)
             counter[day][name] += 1
 

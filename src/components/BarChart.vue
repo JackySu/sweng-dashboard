@@ -19,14 +19,6 @@ export default {
       let promise = new Promise((resolve, reject) => {
         this.myChart = echarts.init(this.$refs.bar, null, { renderer: 'svg' });
         this.option = {
-          "animation": true,
-          "animationThreshold": 2000,
-          "animationDuration": 1000,
-          "animationEasing": "cubicOut",
-          "animationDelay": 0,
-          "animationDurationUpdate": 300,
-          "animationEasingUpdate": "cubicOut",
-          "animationDelayUpdate": 0,
           "series": [{
             "type": "bar",
             "name": "Additions",
@@ -106,6 +98,53 @@ export default {
             },
             "borderWidth": 0,
             "padding": 5
+          },
+          "toolbox": {
+            "show": true,
+            "orient": "horizontal",
+            "itemSize": 15,
+            "itemGap": 10,
+            "left": "80%",
+            "feature": {
+              "saveAsImage": {
+                "type": "png",
+                "backgroundColor": "auto",
+                "connectedBackgroundColor": "#fff",
+                "show": true,
+                "title": "保存为图片",
+                "pixelRatio": 1
+              },
+              "dataView": {
+                "show": true,
+                "title": "数据视图",
+                "readOnly": false,
+                "lang": [
+                  "数据视图",
+                  "关闭",
+                  "刷新"
+                ],
+                "backgroundColor": "#fff",
+                "textareaColor": "#fff",
+                "textareaBorderColor": "#333",
+                "textColor": "#000",
+                "buttonColor": "#c23531",
+                "buttonTextColor": "#fff"
+              },
+              "magicType": {
+                "show": true,
+                "type": [
+                  "line",
+                  "bar",
+                  "tiled"
+                ],
+                "title": {
+                  "line": "切换为折线图",
+                  "bar": "切换为柱状图",
+                  "tiled": "切换为平铺"
+                },
+                "icon": {}
+              },
+            }
           },
           "xAxis": [{
             "show": true,
