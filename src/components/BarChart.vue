@@ -178,7 +178,7 @@ export default {
       });
     },
     updateChart() {
-      const path = 'http://localhost:5000/stats/code_frequency';
+      const path = 'http://localhost:50060/stats/code_frequency';
       axios.get(path, { params: {owner: $cookies.get('REPO_OWNER'), name: $cookies.get('REPO_NAME')}})
         .then((result) => {
           this.myChart.setOption({

@@ -399,7 +399,7 @@ export default {
       }, 2000)
     },
     updateData() {
-      const path = 'http://localhost:5000/lineDynamicData';
+      const path = 'http://localhost:50060/lineDynamicData';
       axios.get(path)
         .then((result) => {
           this.cpu_data.push([result.data.name, result.data.cpu_usage]);
