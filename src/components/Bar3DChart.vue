@@ -213,7 +213,7 @@ export default {
         this.myChart.setOption(this.option);
 
         const path = 'http://localhost:5000/filter_commits';
-        axios.get(path)
+        axios.get(path, { params: {owner: $cookies.get('REPO_OWNER'), name: $cookies.get('REPO_NAME')}})
           .then((result) => {
             this.myChart.setOption({
               series: [{
@@ -256,6 +256,8 @@ export default {
     getFiltered() {
       let form = document.querySelector('#filterForm');
       let parameters = {
+        owner: $cookies.get('REPO_OWNER'), 
+        name: $cookies.get('REPO_NAME'),
         start: form.elements.start.value,
         end: form.elements.end.value
       }

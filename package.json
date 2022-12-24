@@ -13,7 +13,8 @@
     "echarts": "^4.9.0",
     "echarts-gl": "^1.1.2",
     "md-block": "^0.0.1",
-    "vue": "^3.2.45"
+    "vue": "^3.2.45",
+    "vue-cookies": "^1.8.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",

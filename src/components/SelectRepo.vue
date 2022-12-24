@@ -31,9 +31,17 @@ export default {
   methods: {
     selectRepo() {
       let form = document.querySelector('#selectRepo');
-      let parameters = {
-        repo_name: form.elements.repo_name.value
-      }
+      let keyword = form.elements.repo_name.value;
+      const path = `https://api.github.com/search/repositories?q=${keyword}`;
+      axios.get(path)
+        .then((result) => {
+          const full_name = result.data.items[0].split('/');
+          $cookies.set('REPO_OWNER', full_name[0], '1d').set('REPO_NAME', full_name[1], '1d');
+        })
+        .catch((error) => {
+          console.log(error)
+        });
+      /*
       const path = 'http://localhost:5000/selectRepo';
       axios.post(path, parameters, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -52,6 +60,7 @@ export default {
         .catch((error) => {
           console.log(error)
         });
+      */
     }
   }
 }

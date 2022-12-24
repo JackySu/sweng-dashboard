@@ -26,8 +26,8 @@ log.setLevel(logging.WARNING)
 CORS(app, resources={r'/*': {'origins': '*'}})
 
 
-REPO_OWNER = "pyecharts"
-REPO_NAME = "pyecharts"
+REPO_OWNER = "Apache"
+REPO_NAME = "echarts"
 
 # stats/punch_card -> hourly commit count for each day
 # stats/participation -> weekly commit count
@@ -89,10 +89,10 @@ def exception_handler(func):
 
 
 @exception_handler
-def fetch_json(category):
+def fetch_json(owner, name, category):
 
     param = params[category]
-    link = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/{category}'
+    link = f'https://api.github.com/repos/{owner}/{name}/{category}'
 
     errors = 0
     if category == 'commits':
@@ -153,7 +153,9 @@ def update_line_data():
 @app.route("/stats/contributors")
 def get_stats_contributors_data():
     temp_dict = {}
-    data = fetch_json("stats/contributors")
+    owner = request.args.get('owner')
+    name = request.args.get('name')
+    data = fetch_json(owner, name, "stats/contributors")
 
     for item in data:
         contributor = item['author']['login']
@@ -176,7 +178,9 @@ def get_stats_contributors_data():
 @exception_handler
 @app.route("/issues")
 def get_issues_data():
-    data = fetch_json("issues")
+    owner = request.args.get('owner')
+    name = request.args.get('name')
+    data = fetch_json(owner, name, "issues")
     issues = {}
     for item in data:
         issue = {}
@@ -193,7 +197,9 @@ def get_issues_data():
 @exception_handler
 @app.route("/stats/code_frequency")
 def get_stats_code_frequency_data():
-    data = fetch_json("stats/code_frequency")
+    owner = request.args.get('owner')
+    name = request.args.get('name')
+    data = fetch_json(owner, name, "stats/code_frequency")
 
     addition = []
     deletion = []
@@ -214,7 +220,9 @@ def get_stats_code_frequency_data():
 @exception_handler
 @app.route("/commits")
 def get_commits_data():
-    data = fetch_json("commits")
+    owner = request.args.get('owner', REPO_OWNER)
+    name = request.args.get('name', REPO_NAME)
+    data = fetch_json(owner, name, "commits")
 
     for commit in data:
         name = commit['commit']['author']['name']
@@ -228,6 +236,7 @@ def get_commits_data():
 @exception_handler
 @app.route('/filter_commits', methods=['POST', 'GET'])
 def filter_commits():
+
     start_time = request.args.get('start', formatted_utc_time(0)[:10])
     end_time = request.args.get('end', formatted_utc_time()[:10])
 
@@ -248,24 +257,6 @@ def filter_commits():
             result.append([day, name, count])
 
     return {'result': result, 'names': list(names)}
-
-
-@exception_handler
-@app.route("/selectRepo", methods=["POST"])
-def select_repo():
-    params = request.form
-
-    global REPO_OWNER
-    global REPO_NAME
-
-    repo = search_github_repository(params['repo_name'])
-    if repo:
-        full_name = repo['full_name']
-        owner_name = list(full_name.split('/'))
-        REPO_OWNER, REPO_NAME = owner_name[0], owner_name[1]
-        return full_name
-    else:
-        return 'Invalid'
 
 
 token = os.getenv("GITHUB_TOKEN")
