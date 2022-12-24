@@ -41,7 +41,7 @@
   }
   #demo_container {
     display: inline-grid;
-    grid-template-columns: 25% 30px 75%;
+    grid-template-columns: 300px 30px 1000px;
     grid-template-rows: repeat(2, 50%);
   }
 </style>
