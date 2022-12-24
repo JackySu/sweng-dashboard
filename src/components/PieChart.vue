@@ -9,9 +9,6 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      initOpts: {
-        renderer: 'svg'
-      },
       option: null,
     }
   },

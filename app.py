@@ -221,8 +221,8 @@ def get_stats_code_frequency_data():
 @app.route("/commits")
 def get_commits_data(owner=None, name=None):
     if owner is None and name is None:
-        owner = request.args.get('owner', REPO_OWNER)
-        name = request.args.get('name', REPO_NAME)
+        owner = REPO_OWNER
+        name = REPO_NAME
 
     data = fetch_json(owner, name, "commits")
 
@@ -241,8 +241,8 @@ def filter_commits():
 
     start_time = request.args.get('start', formatted_utc_time(0)[:10])
     end_time = request.args.get('end', formatted_utc_time()[:10])
-    owner = request.args.get('owner', REPO_OWNER)
-    name = request.args.get('name', REPO_NAME)
+    owner = request.args.get('owner')
+    name = request.args.get('name')
 
     get_commits_data(owner, name)
     # assume data key is time
