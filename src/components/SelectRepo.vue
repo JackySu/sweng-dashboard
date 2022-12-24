@@ -37,7 +37,7 @@ export default {
         .then((result) => {
           const full_name = result.data.items[0].full_name.split('/');
           $cookies.set('REPO_OWNER', full_name[0], '1d').set('REPO_NAME', full_name[1], '1d');
-          console.log("new cookies:" + full_name);
+          location.reload();
         })
         .catch((error) => {
           console.log(error)
