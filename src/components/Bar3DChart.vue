@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="chart" ref="bar3d" id="b3dChart"></div>
-    <form class="ui form" id="filterForm" @submit.prevent="getFiltered">
+    <form class="ui form" id="filterForm" @submit="getFiltered">
       <div class="three fields">
         <div class="field" id="start_date">
           <label>Start date</label>

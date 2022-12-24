@@ -1,7 +1,7 @@
 
 <template>
   <div>
-    <form class="ui form" id="selectRepo" @submit="selectRepo">
+    <form class="ui form" id="selectRepo" @submit.prevent="selectRepo">
       <div class="two fields">
         <div class="field">
           <label>Repository name</label>
@@ -35,8 +35,9 @@ export default {
       const path = `https://api.github.com/search/repositories?q=${keyword}`;
       axios.get(path)
         .then((result) => {
-          const full_name = result.data.items[0].split('/');
+          const full_name = result.data.items[0].full_name.split('/');
           $cookies.set('REPO_OWNER', full_name[0], '1d').set('REPO_NAME', full_name[1], '1d');
+          console.log("new cookies:" + full_name);
         })
         .catch((error) => {
           console.log(error)

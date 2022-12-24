@@ -219,9 +219,11 @@ def get_stats_code_frequency_data():
 
 @exception_handler
 @app.route("/commits")
-def get_commits_data():
-    owner = request.args.get('owner', REPO_OWNER)
-    name = request.args.get('name', REPO_NAME)
+def get_commits_data(owner=None, name=None):
+    if owner is None and name is None:
+        owner = request.args.get('owner', REPO_OWNER)
+        name = request.args.get('name', REPO_NAME)
+
     data = fetch_json(owner, name, "commits")
 
     for commit in data:
@@ -239,8 +241,10 @@ def filter_commits():
 
     start_time = request.args.get('start', formatted_utc_time(0)[:10])
     end_time = request.args.get('end', formatted_utc_time()[:10])
+    owner = request.args.get('owner', REPO_OWNER)
+    name = request.args.get('name', REPO_NAME)
 
-    get_commits_data()
+    get_commits_data(owner, name)
     # assume data key is time
     counter = defaultdict(lambda: defaultdict(int))
     names = set()
