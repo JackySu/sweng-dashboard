@@ -9,6 +9,7 @@ npm install
 npm run dev
 ```
 ## if you pull from docker
-`docker run -e GITHUB_TOKEN={your_token} --expose 50060 -p 50060:50060 --expose 4622 -p 4622:4622 --rm -ti --network=host iuxe/sweng-dashboard:latest`
+`docker run -e GITHUB_TOKEN={your_token} --expose 50060 -p 50060:50060 --expose 4622 -p 4622:4622 --rm -ti iuxe/sweng-dashboard:latest`
+`python3 app.py & npm run dev`
 
 happy 2023 :>
