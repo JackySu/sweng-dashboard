@@ -13,6 +13,7 @@ npm run dev
 you can choose to whether
 * `python3 app.py & npm run dev &`
 which will run the back-end with flask's built-in wsgi, or
-* 'gunicorn wsgi:app & npm run dev &`
+* `gunicorn wsgi:app & npm run dev &`
+use gunicorn as a more efficient solution
 
 happy 2023 :>
