@@ -240,7 +240,8 @@ def filter_commits():
 
 token = os.getenv("GITHUB_TOKEN")
 if not token:
-    raise RuntimeError("No token has been specified in .env")
+    raise RuntimeError("GITHUB_TOKEN invalid in environmental variables")
+
 
 headers = {
     'Accept': 'application/vnd.github+json',

@@ -5,6 +5,7 @@
 </template>
 
 <script scoped>
+import * as prism from '../prism.js'
 export default {
   data() {
     return {
@@ -19,7 +20,8 @@ with open('test.json', 'wb') as f:
     f.write(response.content)
 `
     }
-  }
+  },
+  components: { prism }
 }
 </script>
 
