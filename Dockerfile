@@ -25,7 +25,7 @@ CMD gunicorn -b 0.0.0.0:50060 app:app
 
 RUN npm -f install
 RUN npm run build
-RUN npm run dev
+RUN npm run dev &
 
 EXPOSE 50060
 EXPOSE 4622
