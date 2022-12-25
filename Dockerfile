@@ -18,8 +18,9 @@ RUN apt remove -y nodejs-doc
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get install -y python3
+RUN apt-get install -y python3-pip
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 CMD gunicorn -b 0.0.0.0:50060 app:app
 
 RUN npm -f install
