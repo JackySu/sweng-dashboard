@@ -5,10 +5,14 @@ WORKDIR /sweng_dashboard
 COPY package*.json ./
 COPY . .
 
-RUN apt remove -y nodejs
-RUN apt remove -y nodejs-doc 
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs python3
+# update 
+RUN apt-get update
+# install curl 
+RUN apt-get install curl
+# get install script and pass it to execute: 
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
+RUN apt-get install -y nodejs
+RUN apt-get install -y python3
 
 RUN npm -f install
 RUN npm run build
