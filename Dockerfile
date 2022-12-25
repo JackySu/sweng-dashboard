@@ -21,7 +21,7 @@ RUN apt-get install -y python3
 RUN apt-get install -y python3-pip
 
 RUN pip3 install --no-cache-dir -r requirements.txt
-RUN python3 app.py &
+CMD gunicorn -b 0.0.0.0:50060 app:app
 
 RUN npm -f install
 RUN npm run build

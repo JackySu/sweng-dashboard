@@ -242,7 +242,7 @@ def filter_commits():
 
 token = os.getenv("GITHUB_TOKEN")
 if not token:
-    raise RuntimeError("GITHUB_TOKEN invalid in environmental variables")
+    raise RuntimeError("GITHUB_TOKEN not in environmental variables")
 
 
 headers = {
@@ -251,6 +251,7 @@ headers = {
 }
 
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 50060))
-    app.run(debug=False, host='0.0.0.0', port=port, threaded=True)
+# in gunicorn __name__ does not necessarily equal to __main__
+# gunicorn -b 0.0.0.0:XXXX app:{__name__}
+port = int(os.environ.get('PORT', 50060))
+app.run(debug=False, host='0.0.0.0', port=port, threaded=True)
