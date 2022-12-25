@@ -8,7 +8,7 @@ COPY . .
 # update 
 RUN apt-get update
 # install curl 
-RUN apt-get install curl
+RUN apt-get install -y curl
 # get install script and pass it to execute: 
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
 RUN apt-get install -y nodejs
