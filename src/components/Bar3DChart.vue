@@ -297,8 +297,14 @@ export default {
       const path = 'http://localhost:50060/filter_commits';
       axios.get(path, { params: parameters })
         .then((result) => {
-          this.option = result.data;
-          this.myChart.setOption(this.option);
+          this.myChart.setOption({
+              series: [{
+                data: result.data.result
+              }],
+              yAxis3D: {
+                data: result.data.names
+              }
+            });
         });
     },
     reloadChart() {

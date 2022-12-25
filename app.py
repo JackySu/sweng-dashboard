@@ -225,16 +225,18 @@ def filter_commits():
     names = set()
     for date in result.keys():
         day = date[:10]
-        if day >= start_time and day <= end_time:
-            name = str(result[date])
-            names.add(name)
-            counter[day][name] += 1
+        if day <= end_time:
+            if day >= start_time:
+                name = str(result[date])
+                names.add(name)
+                counter[day][name] += 1
+            else:
+                break
 
     result = []
     for day in counter.keys():
         for name, count in counter[day].items():
             result.append([day, name, count])
-
     return {'result': result, 'names': list(names)}
 
 

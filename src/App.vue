@@ -36,6 +36,7 @@
 
 <style scoped>
   #chart_page {
+    padding-top: 40px;
     width: 1000px;
     height: 600px;
   }

@@ -10,9 +10,9 @@
             <input id="repo_name" name="repo_name" type="text" placeholder="Repo Name">
           </div>
         </div>
-        <div class="field" style="margin-top: 25px;">
+        <div class="field">
           <button type="submit" class="ui black tertiary button">
-            <i class="github icon"></i>
+            <i class="github icon" style="padding-top: 35px"></i>
             Select
           </button>
         </div>

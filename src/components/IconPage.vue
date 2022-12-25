@@ -1,7 +1,7 @@
 <template>
   <img src="../assets/icon.png" id="icon" />
-  <h1 class="text-gradient">Git Repo Analysis</h1>
-  <p>An echarts solution with Python + Vue.js</p>
+  <h1>🅶🅸🆃<br/>🆁🅴🅿🅾</h1>
+  <h2>🅼🅴🆃🅴🆁</h2>
   <div class="text-divider">Choose Repo</div>
 </template>
 
@@ -20,11 +20,11 @@ export default {
 
 <style scope>
   #icon {
-    width: 280px;
+    width: 220px;
   }
 
   .text-gradient {
-    background-image: linear-gradient(to right, #ffc17a, #270805, #f3f3f3);
+    background-image: linear-gradient(to right, #270805, #865454);
     -webkit-background-clip: text;
     color: transparent;
     font-size: 30px;
