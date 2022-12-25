@@ -1,10 +1,12 @@
 FROM ubuntu:latest
 
-WORKDIR /sweng_dashboard
+WORKDIR /sweng-dashboard
 
 COPY package*.json ./
 COPY requirements.txt ./
 COPY . .
+
+ENV PATH /sweng-dashboard/node_modules/.bin:$PATH
 
 # update 
 RUN apt-get update
