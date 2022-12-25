@@ -3,6 +3,7 @@ FROM ubuntu:latest
 WORKDIR /sweng_dashboard
 
 COPY package*.json ./
+COPY requirements.txt ./
 COPY . .
 
 # update 
@@ -16,7 +17,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get install -y python3
 
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 CMD gunicorn -b 0.0.0.0:50060 app:app
 
 RUN npm -f install
