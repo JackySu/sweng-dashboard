@@ -12,6 +12,7 @@ from flask import Flask, request
 from flask_cors import CORS
 
 
+from cachetools import cached, TTLCache
 from collections import defaultdict
 
 
@@ -66,8 +67,8 @@ def exception_handler(func):
 
 
 @exception_handler
+@cached(cache=TTLCache(maxsize=20, ttl=datetime.timedelta(hours=12), timer=datetime.datetime.now))
 def fetch_json(owner, name, category):
-
     param = params[category]
     link = f'https://api.github.com/repos/{owner}/{name}/{category}'
 
