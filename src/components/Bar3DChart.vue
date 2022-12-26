@@ -254,9 +254,6 @@ export default {
               }],
               yAxis3D: {
                 data: result.data.names
-              },
-              xAxis3D: {
-                data: result.data.dates
               }
             });
             this.option = this.myChart.getOption();
@@ -306,9 +303,6 @@ export default {
               }],
               yAxis3D: {
                 data: result.data.names
-              },
-              xAxis3D: {
-                data: result.data.dates
               }
             });
         });
