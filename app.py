@@ -253,5 +253,6 @@ headers = {
 
 # in gunicorn __name__ does not necessarily equal to __main__
 # gunicorn -b 0.0.0.0:XXXX app:{__name__}
-port = int(os.environ.get('PORT', 50060))
-app.run(debug=False, host='0.0.0.0', port=port, threaded=True)
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 50060))
+    app.run(debug=False, host='0.0.0.0', port=port, threaded=True)
