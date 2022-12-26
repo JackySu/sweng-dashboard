@@ -303,6 +303,9 @@ export default {
               }],
               yAxis3D: {
                 data: result.data.names
+              },
+              xAxis3D: {
+                data: undefined // set as undefined to refresh x axis data
               }
             });
         });
