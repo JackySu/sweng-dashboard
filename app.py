@@ -92,9 +92,7 @@ async def fetch_json(category: str, owner: str = None, name: str = None):
     errors = 0
     if category == 'commits':
 
-        i = 1
         while errors < MAX_ERROR_TIMES:
-            link_final = link + f'?per_page=999&page={i}'
             async with aiohttp.ClientSession() as session:
                 tasks = []
                 for url in [link + f'?per_page=999&page={i}' for i in range(20)]:
