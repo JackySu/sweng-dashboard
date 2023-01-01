@@ -247,4 +247,4 @@ headers = {
 # gunicorn -b 0.0.0.0:XXXX app:{__name__}
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 50060))
-    uvicorn.run(app='app:app', host='localhost', port=port, reload=True)
+    uvicorn.run(app='app:app', host='localhost', port=port, reload=False)
