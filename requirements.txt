@@ -2,6 +2,6 @@ aiohttp
 asyncio
 psutil
 datetime
-uvicorn
+uvicorn[standard]
 gunicorn==20.1.0
 fastapi
