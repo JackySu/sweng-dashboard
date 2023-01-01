@@ -257,13 +257,11 @@ export default {
               }
             });
             this.option = this.myChart.getOption();
+            this.myChart.on('finished', () => { resolve() });
           })
           .catch((error) => {
             console.error(error);
           });
-        this.myChart.on('finished', () => {
-          resolve();
-        })
       });
       promise.then(() => {
         console.log("Finished loading Bar3DChart");

@@ -1,29 +1,30 @@
-import requests
+import aiohttp
+import asyncio
 import psutil
-import logging
 import datetime
 import time
 import os
-import json
+import uvicorn
 
 
-from flask.json import jsonify
-from flask import Flask, request
-from flask_cors import CORS
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-
-from cachetools import cached, TTLCache
+from functools import lru_cache
 from collections import defaultdict
 
 
 MAX_ERROR_TIMES = 10
 
 
-app = Flask(__name__)
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.WARNING)
-
-CORS(app, resources={r'/*': {'origins': '*'}})
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 REPO_OWNER = "Apache"
@@ -56,70 +57,71 @@ def formatted_utc_time(t=None) -> str:
     return d.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
-def exception_handler(func):
-    def inner_function(*args, **kwargs):
-        try:
-            ret = func(*args, **kwargs)
-            return ret
-        except Exception as e:
-            print(f"\033[0;31;40m{func.__name__} throws exception as {e}\033[0m")
-    return inner_function
+def async_lru_cache(*lru_cache_args, **lru_cache_kwargs):
+    def async_lru_cache_decorator(async_function):
+        @lru_cache(*lru_cache_args, **lru_cache_kwargs)
+        def cached_async_function(*args, **kwargs):
+            coroutine = async_function(*args, **kwargs)
+            return asyncio.ensure_future(coroutine)
+        return cached_async_function
+    return async_lru_cache_decorator
 
 
-@exception_handler
-@cached(cache=TTLCache(maxsize=20, ttl=datetime.timedelta(hours=12), timer=datetime.datetime.now))
-def fetch_json(owner, name, category):
+async def fetch(session, url):
+    errors = 0
+    while errors < MAX_ERROR_TIMES:
+        async with session.get(url, headers=headers) as response:
+            if response.status == 200:
+                return await response.json()
+            else:
+                errors += 1
+                await asyncio.sleep(1)
+
+    raise RuntimeWarning(f"[Back-end] ≥{MAX_ERROR_TIMES} Errors when requesting {url}")
+
+
+@async_lru_cache(maxsize=30)
+async def fetch_json(category: str, owner: str = None, name: str = None):
+    if not owner or not name:
+        owner = REPO_OWNER
+        name = REPO_NAME
+
     param = params[category]
     link = f'https://api.github.com/repos/{owner}/{name}/{category}'
 
     errors = 0
     if category == 'commits':
-        streams = []
+
         i = 1
         while errors < MAX_ERROR_TIMES:
             link_final = link + f'?per_page=999&page={i}'
-            response = requests.get(link_final, headers=headers)
-            if response.status_code == 200:
-                byteStream = response.content
-                if byteStream.decode('utf-8') == '[]':
-                    break
-                streams.append(byteStream)
-                i += 1
-            else:
-                errors += 1
-                time.sleep(1)
+            async with aiohttp.ClientSession() as session:
+                tasks = []
+                for url in [link + f'?per_page=999&page={i}' for i in range(20)]:
+                    tasks.append(fetch(session, url))
+                contents = await asyncio.gather(*tasks)
 
-        if errors >= MAX_ERROR_TIMES:
-            raise RuntimeWarning(f"[Back-end] ≥{MAX_ERROR_TIMES} Errors when requesting {category} with status code {response.status_code}\n{response.content}")
-
-        results = []
-        for stream in streams:
-            results.extend(json.loads(stream))
-        return results
+                results = []
+                for content in contents:
+                    if content == '[]':
+                        continue
+                    results.extend(content)
+                return results
 
     else:
-        if param:
-            link = link + '?' + '&'.join([str(key) + '=' + str(value) for key, value in param.items()])
+
+        link_final = link + '?' + '&'.join([str(key) + '=' + str(value) for key, value in param.items()]) if param else link
 
         while errors < MAX_ERROR_TIMES:
-            response = requests.get(link, headers=headers)
-            if response.status_code == 200:
-                byteStream = response.content
-                return json.loads(byteStream)
-            else:
-                errors += 1
-                time.sleep(1)
-
-        if errors >= MAX_ERROR_TIMES:
-            raise RuntimeWarning(f"[Back-end] {formatted_local_time()} Error when requesting {category} with status code {response.status_code}\ncontent: {response.content}")
+            async with aiohttp.ClientSession() as session:
+                return await fetch(session, link_final)
 
 
-@app.route("/lineDynamicData")
-def update_line_data():
+@app.get("/lineDynamicData")
+async def update_line_data():
     data = {"name": formatted_local_time(), "cpu_usage": psutil.cpu_percent(percpu=False), "ram_usage": psutil.virtual_memory().percent}
     # print(f"{formatted_local_time()}: {data}")
-    response = jsonify(data)
-    return response
+    return data
 
 
 # stats/punch_card -> hourly commit count for each day
@@ -127,13 +129,10 @@ def update_line_data():
 # stats/code_frequency -> a weekly aggregate of the number of additions and deletions pushed to a repository
 
 
-@exception_handler
-@app.route("/stats/contributors")
-def get_stats_contributors_data():
+@app.get("/stats/contributors")
+async def get_stats_contributors_data(owner: str = None, name: str = None):
     temp_dict = {}
-    owner = request.args.get('owner')
-    name = request.args.get('name')
-    data = fetch_json(owner, name, "stats/contributors")
+    data = await fetch_json("stats/contributors", owner, name)
 
     for item in data:
         contributor = item['author']['login']
@@ -153,12 +152,9 @@ def get_stats_contributors_data():
     return {'proportions': res, 'legends': legends}
 
 
-@exception_handler
-@app.route("/issues")
-def get_issues_data():
-    owner = request.args.get('owner')
-    name = request.args.get('name')
-    data = fetch_json(owner, name, "issues")
+@app.get("/issues")
+async def get_issues_data(owner: str = None, name: str = None):
+    data = await fetch_json("issues", owner, name)
     issues = {}
     for item in data:
         issue = {}
@@ -168,16 +164,12 @@ def get_issues_data():
         issue['updated_time'] = item['updated_at']
         issues[item['number']] = issue
 
-    response = jsonify(issues)
-    return response
+    return issues
 
 
-@exception_handler
-@app.route("/stats/code_frequency")
-def get_stats_code_frequency_data():
-    owner = request.args.get('owner')
-    name = request.args.get('name')
-    data = fetch_json(owner, name, "stats/code_frequency")
+@app.get("/stats/code_frequency")
+async def get_stats_code_frequency_data(owner: str = None, name: str = None):
+    data = await fetch_json("stats/code_frequency", owner, name)
 
     addition = []
     deletion = []
@@ -195,12 +187,8 @@ def get_stats_code_frequency_data():
     return {'timeline': timeline, 'addition': addition, 'deletion': deletion}
 
 
-def get_commits_data(owner=None, name=None):
-    if owner is None and name is None:
-        owner = REPO_OWNER
-        name = REPO_NAME
-
-    data = fetch_json(owner, name, "commits")
+async def get_commits_data(owner=None, name=None):
+    data = await fetch_json("commits", owner, name)
 
     result = {}
     for commit in data:
@@ -211,16 +199,15 @@ def get_commits_data(owner=None, name=None):
     return result
 
 
-@exception_handler
-@app.route('/filter_commits', methods=['POST', 'GET'])
-def filter_commits():
+@app.get('/filter_commits')
+async def filter_commits(owner: str = None, name: str = None, start_time: str = None, end_time: str = None):
 
-    start_time = request.args.get('start', formatted_utc_time(0)[:10])
-    end_time = request.args.get('end', formatted_utc_time()[:10])
-    owner = request.args.get('owner')
-    name = request.args.get('name')
+    if start_time is None:
+        start_time = formatted_utc_time(0)[:10]
+    if end_time is None:
+        end_time = formatted_utc_time()[:10]
 
-    result = get_commits_data(owner, name)
+    result = await get_commits_data(owner, name)
     # assume data key is time
     counter = defaultdict(lambda: defaultdict(int))
     names = set()
@@ -243,7 +230,7 @@ def filter_commits():
 
 token = os.getenv("GITHUB_TOKEN")
 if not token:
-    raise RuntimeError("GITHUB_TOKEN not in environmental variables")
+    raise RuntimeError("GITHUB_TOKEN not declared in env variables")
 
 
 headers = {
@@ -256,4 +243,4 @@ headers = {
 # gunicorn -b 0.0.0.0:XXXX app:{__name__}
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 50060))
-    app.run(debug=False, host='0.0.0.0', port=port, threaded=True)
+    uvicorn.run(app='app:app', host='localhost', port=port, reload=True)
