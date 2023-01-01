@@ -15,6 +15,7 @@ from collections import defaultdict
 
 
 MAX_ERROR_TIMES = 10
+MAX_AIOHTTP_TASKS = 20
 
 
 app = FastAPI()
@@ -92,20 +93,23 @@ async def fetch_json(category: str, owner: str = None, name: str = None):
     errors = 0
     if category == 'commits':
 
-        i = 1
         while errors < MAX_ERROR_TIMES:
-            link_final = link + f'?per_page=999&page={i}'
             async with aiohttp.ClientSession() as session:
-                tasks = []
-                for url in [link + f'?per_page=999&page={i}' for i in range(20)]:
-                    tasks.append(fetch(session, url))
-                contents = await asyncio.gather(*tasks)
-
                 results = []
-                for content in contents:
-                    if content == '[]':
-                        continue
-                    results.extend(content)
+                i = 0
+                isEnd = False
+                while not isEnd:
+                    tasks = []
+                    for url in [link + f'?per_page=100&page={j}' for j in range(i, i + MAX_AIOHTTP_TASKS)]:
+                        tasks.append(fetch(session, url))
+                    contents = await asyncio.gather(*tasks)
+                    i += MAX_AIOHTTP_TASKS
+                    for content in contents:
+                        if content == []:
+                            isEnd = True
+                            break
+                        results.extend(content)
+
                 return results
 
     else:
