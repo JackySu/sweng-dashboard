@@ -31,10 +31,10 @@
     </button>
     <br/>
     <div>
-      <ChartLoaderVue :selectChart="'BarChartVue'" v-if="graphNumber == 0" />
-      <ChartLoaderVue :selectChart="'PieChartVue'" v-if="graphNumber == 1" />
-      <ChartLoaderVue :selectChart="'Bar3DChartVue'" v-if="graphNumber == 2" />
-      <ChartLoaderVue :selectChart="'LineChartVue'" v-if="graphNumber == 3" />
+      <ChartLoaderVue :selectChart="'BarChartVue'" v-show="graphNumber == 0" />
+      <ChartLoaderVue :selectChart="'PieChartVue'" v-show="graphNumber == 1" />
+      <ChartLoaderVue :selectChart="'Bar3DChartVue'" v-show="graphNumber == 2" />
+      <ChartLoaderVue :selectChart="'LineChartVue'" v-show="graphNumber == 3" />
     </div>
   </div>
 </template>
@@ -59,7 +59,7 @@
           this.graphNumber = $cookies.get("selectedGraph")
         } else {
           this.graphNumber = 0;
-          $cookies.set("selectedGraph", 0);
+          $cookies.set("selectedGraph", 0, "1d");
         }
       }
     },
