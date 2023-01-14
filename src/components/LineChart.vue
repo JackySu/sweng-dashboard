@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script scoped>
+<script>
 import * as echarts from 'echarts'
 import axios from 'axios'
 export default {

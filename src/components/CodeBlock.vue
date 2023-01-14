@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script scoped>
+<script>
 import * as prism from '../prism.js'
 export default {
   data() {

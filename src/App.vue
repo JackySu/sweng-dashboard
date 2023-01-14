@@ -1,27 +1,24 @@
-<script setup>
-  import SelectRepoVue from './components/SelectRepo.vue';
-  import ChartItemVue from './components/ChartItem.vue';
-  import MarkdownBlockVue from './components/MarkdownBlock.vue';
-  import IconPageVue from './components/IconPage.vue';
-</script>
-
 <template>
   <div id="demo_container">
     <div>
       <IconPageVue />
-      <SelectRepoVue />
+      <SelectRepoVue @update_repo="updateRepo" />
       <button class="ui left attached button" @click="subPageNum=0">Charts</button>
       <button class="right attached ui button" @click="subPageNum=1">Intro</button>
     </div>
     <div></div>
     <div id="chart_page">
-      <ChartItemVue v-show="subPageNum==0"/>
-      <MarkdownBlockVue v-show="subPageNum==1"/>
+      <ChartItemVue v-show="subPageNum==0" ref="charts"/>
+      <MarkdownBlockVue v-show="subPageNum==1" />
     </div>
   </div>
 </template>
 
-<script scoped>
+<script>
+  import SelectRepoVue from './components/SelectRepo.vue';
+  import ChartItemVue from './components/ChartItem.vue';
+  import MarkdownBlockVue from './components/MarkdownBlock.vue';
+  import IconPageVue from './components/IconPage.vue';
   export default {
     data() {
       return {
@@ -30,6 +27,13 @@
     },
     components: {
       SelectRepoVue, ChartItemVue, MarkdownBlockVue, IconPageVue
+    },
+    methods: {
+      updateRepo(owner, name) {
+        $cookies.set('REPO_OWNER', owner, '1d').set('REPO_NAME', name, '1d');
+        console.log("update cookies");
+        this.$refs.charts.reloadAllCharts();
+      }
     }
   }
 </script>

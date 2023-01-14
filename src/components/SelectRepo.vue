@@ -21,7 +21,7 @@
   </div>
 </template>
 
-<script scoped>
+<script>
 import axios from 'axios';
 export default {
   data() {
@@ -36,8 +36,8 @@ export default {
       axios.get(path)
         .then((result) => {
           const full_name = result.data.items[0].full_name.split('/');
-          $cookies.set('REPO_OWNER', full_name[0], '1d').set('REPO_NAME', full_name[1], '1d');
-          location.reload();
+          this.$emit('update_repo', full_name[0], full_name[1]);
+          // location.reload(); // refresh whole page
         })
         .catch((error) => {
           console.log(error)

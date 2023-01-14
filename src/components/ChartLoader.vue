@@ -1,7 +1,7 @@
 <template>
-  <div style="position: relative">
+  <div style="position: relative" >
     <component :is="selectChart" @loaded="setDisplay"></component>
-    <div v-if="!isChartDisplayed" class="loadingio-spinner-ellipsis-9jvoq1er23r">
+    <div v-show="!isChartDisplayed" class="loadingio-spinner-ellipsis-9jvoq1er23r">
       <div class="ldio-5vf2fuygssf">
         <div></div>
         <div></div>
@@ -13,7 +13,7 @@
   </div>
 </template>
 
-<script scoped>
+<script>
   import LineChartVue from "./LineChart.vue"
   import BarChartVue from "./BarChart.vue"
   import PieChartVue from "./PieChart.vue"

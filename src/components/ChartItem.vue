@@ -1,8 +1,3 @@
-
-<script setup>
-  import ChartLoaderVue from './ChartLoader.vue';
-</script>
-
 <template>
   <div class="chart_container">
     <button
@@ -30,20 +25,37 @@
       Line Chart
     </button>
     <br/>
-    <div>
-      <ChartLoaderVue :selectChart="'BarChartVue'" v-show="graphNumber == 0" />
-      <ChartLoaderVue :selectChart="'PieChartVue'" v-show="graphNumber == 1" />
-      <ChartLoaderVue :selectChart="'Bar3DChartVue'" v-show="graphNumber == 2" />
-      <ChartLoaderVue :selectChart="'LineChartVue'" v-show="graphNumber == 3" />
+    <div v-if="isChartShow">
+      <ChartLoaderVue v-for="item in items" :key="item.index" :selectChart="item.component" v-show="graphNumber == item.index" />
     </div>
   </div>
 </template>
 
-<script scoped>
+<script>
+  import ChartLoaderVue from './ChartLoader.vue';
   export default {
     data() {
       return {
         graphNumber: 0,
+        isChartShow: true,
+        items: [
+          {
+            index: "0",
+            component: "BarChartVue"
+          },
+          {
+            index: "1",
+            component: "PieChartVue"
+          },
+          {
+            index: "2",
+            component: "Bar3DChartVue"
+          },
+          {
+            index: "3",
+            component: "LineChartVue"
+          }
+        ]
       }
     },
     components: {
@@ -61,6 +73,12 @@
           this.graphNumber = 0;
           $cookies.set("selectedGraph", 0, "1d");
         }
+      },
+      reloadAllCharts() {
+        this.isChartShow = false;
+        this.$nextTick(() => {
+          this.isChartShow = true;
+        });
       }
     },
     created() {

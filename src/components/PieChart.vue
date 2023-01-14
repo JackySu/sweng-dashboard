@@ -3,7 +3,7 @@
     <div class="chart" ref="pie" id="pieChart"></div>
   </div>
 </template>
-<script scoped>
+<script>
 import * as echarts from 'echarts'
 import axios from 'axios'
 export default {

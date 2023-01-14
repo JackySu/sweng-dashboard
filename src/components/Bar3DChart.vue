@@ -31,7 +31,7 @@
     </form>
   </div>
 </template>
-<script scoped>
+<script>
 import * as echarts from 'echarts'
 import 'echarts-gl'
 import axios from 'axios'
