@@ -31,7 +31,7 @@
     methods: {
       updateRepo(owner, name) {
         $cookies.set('REPO_OWNER', owner, '1d').set('REPO_NAME', name, '1d');
-        console.log("update cookies");
+        console.log(`update cookies as ${owner}/${name}`);
         this.$refs.charts.reloadAllCharts();
       }
     }

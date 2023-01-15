@@ -1,13 +1,15 @@
-
 <template>
   <div>
     <form class="ui form" id="selectRepo" @submit.prevent="selectRepo">
       <div class="two fields">
         <div class="field">
-          <label>Repository name</label>
-          <div class="ui input left icon">
-            <i class="edit icon"></i>
-            <input id="repo_name" name="repo_name" type="text" placeholder="Repo Name">
+          <label>repository name</label>
+          <div class="ui search">
+            <div class="ui input left icon">
+              <i class="edit icon"></i>
+              <input id="repo_name" class="prompt" name="repo_name" type="text" placeholder="Repo Name">
+            </div>
+            <div v-show="resultsDisplay" class="results"></div>
           </div>
         </div>
         <div class="field">
@@ -26,17 +28,40 @@ import axios from 'axios';
 export default {
   data() {
     return {
+      repoNames: [],
+      resultsDisplay: false,
     }
   },
   methods: {
     selectRepo() {
+      if (this.repoNames.length == 0) {
+        return;
+      }
+      console.log(this.repoNames)
+      const full_name = this.repoNames[0].title.split('/');
+      this.$emit('update_repo', full_name[0], full_name[1]);
+    },
+    searchRepo() {
       let form = document.querySelector('#selectRepo');
       let keyword = form.elements.repo_name.value;
       const path = `https://api.github.com/search/repositories?q=${keyword}`;
+      this.resultsDisplay = false;
       axios.get(path)
         .then((result) => {
-          const full_name = result.data.items[0].full_name.split('/');
-          this.$emit('update_repo', full_name[0], full_name[1]);
+          let results = result.data.items.slice(0, 10);
+          this.repoNames = [];
+          for (var repo of results) {
+            this.repoNames.push({
+              title: repo.full_name
+            });
+          }
+          this.resultsDisplay = true;
+          $('.ui.search')
+            .search({
+              source: this.repoNames,
+              searchFullText: true,
+              maxResults: 5,
+          });
           // location.reload(); // refresh whole page
         })
         .catch((error) => {
@@ -62,7 +87,19 @@ export default {
           console.log(error)
         });
       */
+    },
+    getReferRepos() {
+      let content = '';
+      for (let repo of this.repoNames) {
+        content += `${repo}\n`;
+      }
+      return content;
     }
+  },
+  mounted() {
+    document.getElementsByName('repo_name')[0].addEventListener('change', (event) => {
+      this.searchRepo();
+    });
   }
 }
 </script>
