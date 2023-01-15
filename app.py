@@ -272,5 +272,5 @@ headers = {
 # in gunicorn __name__ does not necessarily equal to __main__
 # gunicorn -b 0.0.0.0:XXXX app:{__name__}
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5060))
+    port = int(os.environ.get('PORT', 5085))
     uvicorn.run(app='app:app', host='localhost', port=port, reload=False)

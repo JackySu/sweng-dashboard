@@ -18,13 +18,13 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs python3 python3-pip apache2-utils
 
 RUN pip3 install --no-cache-dir -r requirements.txt
-# CMD gunicorn -b 0.0.0.0:5060 app:app
+# CMD gunicorn -b 0.0.0.0:5085 app:app
 
 RUN npm -f install
 RUN npm run build
 RUN npm run dev &
 
-EXPOSE 5060
+EXPOSE 5085
 EXPOSE 4622
 
 CMD ["/bin/bash"]
