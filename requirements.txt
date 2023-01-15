@@ -5,3 +5,4 @@ datetime
 uvicorn[standard]
 gunicorn==20.1.0
 fastapi
+async-cache

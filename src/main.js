@@ -4,7 +4,7 @@ import App from './App.vue'
 import VueCookies from 'vue-cookies'
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://localhost:50060/';
+axios.defaults.baseURL = 'http://localhost:5060/';
 
 const app = createApp(App)
 app.mount('#app')

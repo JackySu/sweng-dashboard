@@ -8,9 +8,10 @@ import uvicorn
 
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from functools import lru_cache
+from cache import AsyncTTL
 from collections import defaultdict
 
 
@@ -23,7 +24,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["POST", "GET"],
     allow_headers=["*"],
 )
 
@@ -58,6 +59,8 @@ def formatted_utc_time(t=None) -> str:
     return d.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
+'''
+// an async lru cache decorator
 def async_lru_cache(*lru_cache_args, **lru_cache_kwargs):
     def async_lru_cache_decorator(async_function):
         @lru_cache(*lru_cache_args, **lru_cache_kwargs)
@@ -66,6 +69,7 @@ def async_lru_cache(*lru_cache_args, **lru_cache_kwargs):
             return asyncio.ensure_future(coroutine)
         return cached_async_function
     return async_lru_cache_decorator
+'''
 
 
 async def fetch(session, url):
@@ -81,7 +85,7 @@ async def fetch(session, url):
     raise RuntimeWarning(f"[Back-end] ≥{MAX_ERROR_TIMES} Errors when requesting {url}")
 
 
-@async_lru_cache(maxsize=30)
+@AsyncTTL(time_to_live=60, maxsize=128)
 async def fetch_json(category: str, owner: str = None, name: str = None):
     if not owner or not name:
         owner = REPO_OWNER
@@ -121,8 +125,11 @@ async def fetch_json(category: str, owner: str = None, name: str = None):
                 return await fetch(session, link_final)
 
 
-@app.get("/lineDynamicData")
+@app.get("/lineDynamicData", summary="Get host CPU & RAM usages")
 async def update_line_data():
+    '''
+    - return: {"name": "2020-08-30 16:49:47", "cpu_usage": 12.3, "ram_usage": 45.6}
+    '''
     data = {"name": formatted_local_time(), "cpu_usage": psutil.cpu_percent(percpu=False), "ram_usage": psutil.virtual_memory().percent}
     # print(f"{formatted_local_time()}: {data}")
     return data
@@ -133,8 +140,12 @@ async def update_line_data():
 # stats/code_frequency -> a weekly aggregate of the number of additions and deletions pushed to a repository
 
 
-@app.get("/stats/contributors")
+@app.get("/stats/contributors", summary="Get contributors' commit proportions and their names as legends")
 async def get_stats_contributors_data(owner: str = None, name: str = None):
+    '''
+    - params: owner, name
+    - return: {"proportions": [{"name": "a", "value": 1}, {"name": "b", "value": 2}], "legends": ["a", "b"]}
+    '''
     temp_dict = {}
     data = await fetch_json("stats/contributors", owner, name)
 
@@ -171,8 +182,12 @@ async def get_issues_data(owner: str = None, name: str = None):
     return issues
 
 
-@app.get("/stats/code_frequency")
+@app.get("/stats/code_frequency", summary="Get code frequency data of additions and deletions")
 async def get_stats_code_frequency_data(owner: str = None, name: str = None):
+    '''
+    - params: owner, name
+    - return: {"timeline": ["2020-08-30 16:49:47", "2020-08-30 16:49:47"], "addition": [1, 2], "deletion": [3, 4]}
+    '''
     data = await fetch_json("stats/code_frequency", owner, name)
 
     addition = []
@@ -203,9 +218,12 @@ async def get_commits_data(owner=None, name=None):
     return result
 
 
-@app.get('/filter_commits')
+@app.get('/filter_commits', summary="Get commits filtered by time")
 async def filter_commits(owner: str = None, name: str = None, start_time: str = None, end_time: str = None):
-
+    '''
+    - params: owner, name, start_time, end_time
+    - return: {"result": [["2020-08-30 16:49:47", "a", 1], ["2020-08-30 16:49:47", "b", 2]], "names": ["a", "b"]}
+    '''
     if start_time is None:
         start_time = formatted_utc_time(0)[:10]
     if end_time is None:
@@ -232,6 +250,14 @@ async def filter_commits(owner: str = None, name: str = None, start_time: str = 
     return {'result': result, 'names': list(names)}
 
 
+@app.get("/", summary="Bruh")
+def index():
+    '''
+    - return: redirects to redoc
+    '''
+    return RedirectResponse(url='/redoc')
+
+
 token = os.getenv("GITHUB_TOKEN")
 if not token:
     raise RuntimeError("GITHUB_TOKEN not declared in env variables")
@@ -246,5 +272,5 @@ headers = {
 # in gunicorn __name__ does not necessarily equal to __main__
 # gunicorn -b 0.0.0.0:XXXX app:{__name__}
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 50060))
+    port = int(os.environ.get('PORT', 5060))
     uvicorn.run(app='app:app', host='localhost', port=port, reload=False)
