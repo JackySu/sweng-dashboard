@@ -255,7 +255,7 @@ def index():
     '''
     - return: redirects to redoc
     '''
-    return RedirectResponse(url='/redoc')
+    return RedirectResponse(url='/redoc', status_code=302)
 
 
 token = os.getenv("GITHUB_TOKEN")
