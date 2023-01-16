@@ -80,7 +80,7 @@ async def fetch(session, url):
                 return await response.json()
             else:
                 errors += 1
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
 
     raise RuntimeWarning(f"[Back-end] ≥{MAX_ERROR_TIMES} Errors when requesting {url}")
 
@@ -94,35 +94,28 @@ async def fetch_json(category: str, owner: str = None, name: str = None):
     param = params[category]
     link = f'https://api.github.com/repos/{owner}/{name}/{category}'
 
-    errors = 0
     if category == 'commits':
-
-        while errors < MAX_ERROR_TIMES:
-            async with aiohttp.ClientSession() as session:
-                results = []
-                i = 0
-                isEnd = False
-                while not isEnd:
-                    tasks = []
-                    for url in [link + f'?per_page=100&page={j}' for j in range(i, i + MAX_AIOHTTP_TASKS)]:
-                        tasks.append(fetch(session, url))
-                    contents = await asyncio.gather(*tasks)
-                    i += MAX_AIOHTTP_TASKS
-                    for content in contents:
-                        if content == []:
-                            isEnd = True
-                            break
-                        results.extend(content)
-
-                return results
+        async with aiohttp.ClientSession() as session:
+            results = []
+            i = 0
+            isEnd = False
+            while not isEnd:
+                tasks = []
+                for url in [link + f'?per_page=100&page={j}' for j in range(i, i + MAX_AIOHTTP_TASKS)]:
+                    tasks.append(fetch(session, url))
+                contents = await asyncio.gather(*tasks)
+                i += MAX_AIOHTTP_TASKS
+                for content in contents:
+                    if content == []:
+                        isEnd = True
+                        break
+                    results.extend(content)
+            return results
 
     else:
-
         link_final = link + '?' + '&'.join([str(key) + '=' + str(value) for key, value in param.items()]) if param else link
-
-        while errors < MAX_ERROR_TIMES:
-            async with aiohttp.ClientSession() as session:
-                return await fetch(session, link_final)
+        async with aiohttp.ClientSession() as session:
+            return await fetch(session, link_final)
 
 
 @app.get("/lineDynamicData", summary="Get host CPU & RAM usages")
@@ -250,8 +243,24 @@ async def filter_commits(owner: str = None, name: str = None, start_time: str = 
     return {'result': result, 'names': list(names)}
 
 
+@app.get("/searchRepo", summary="Search for repositories according to keywords")
+async def search_repo(keyword: str):
+    '''
+    - params: keyword
+    - return: {"result": [{"title": "a", "url": "b"}, {"title": "c", "url": "d"}]}
+    '''
+    url = f"https://api.github.com/search/repositories?q={keyword}"
+    result = []
+    async with aiohttp.ClientSession() as session:
+        repos = await fetch(session, url)
+        for repo in repos["items"][:10]:
+            result.append({"title": repo["full_name"], "url": repo["html_url"]})
+
+    return {'result': result}
+
+
 @app.get("/", summary="Bruh")
-def index():
+async def index():
     '''
     - return: redirects to redoc
     '''

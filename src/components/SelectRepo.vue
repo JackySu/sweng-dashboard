@@ -9,7 +9,7 @@
               <i class="edit icon"></i>
               <input id="repo_name" class="prompt" name="repo_name" type="text" placeholder="Repo Name">
             </div>
-            <div v-show="resultsDisplay" class="results"></div>
+            <div class="results"></div>
           </div>
         </div>
         <div class="field">
@@ -28,40 +28,28 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      repoNames: [],
-      resultsDisplay: false,
     }
   },
   methods: {
     selectRepo() {
-      if (this.repoNames.length == 0) {
-        return;
-      }
-      console.log(this.repoNames)
-      const full_name = this.repoNames[0].title.split('/');
-      this.$emit('update_repo', full_name[0], full_name[1]);
-    },
-    searchRepo() {
       let form = document.querySelector('#selectRepo');
       let keyword = form.elements.repo_name.value;
-      const path = `https://api.github.com/search/repositories?q=${keyword}`;
-      this.resultsDisplay = false;
+      const path = `searchRepo?keyword=${keyword}`;
       axios.get(path)
-        .then((result) => {
-          let results = result.data.items.slice(0, 10);
-          this.repoNames = [];
+        .then((res) => {
+          let results = res.data.result;
+          let repoNames = [];
           for (var repo of results) {
-            this.repoNames.push({
-              title: repo.full_name
+            repoNames.push({
+              title: repo.title,
             });
           }
-          this.resultsDisplay = true;
-          $('.ui.search')
-            .search({
-              source: this.repoNames,
-              searchFullText: true,
-              maxResults: 5,
-          });
+          if (repoNames.length == 0) {
+            return;
+          }
+          console.log(repoNames);
+          const full_name = repoNames[0].title.split('/');
+          this.$emit('update_repo', full_name[0], full_name[1]);
           // location.reload(); // refresh whole page
         })
         .catch((error) => {
@@ -97,8 +85,18 @@ export default {
     }
   },
   mounted() {
-    document.getElementsByName('repo_name')[0].addEventListener('change', (event) => {
-      this.searchRepo();
+    $('.ui.search')
+      .search({
+        apiSettings: {
+          url: 'http://localhost:5085/searchRepo?keyword={query}',
+        },
+        fields: {
+          results: 'result',
+          title: 'title',
+          url: '#',
+        },
+        minCharacters: 2,
+        maxResults: 5,
     });
   }
 }
