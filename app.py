@@ -13,10 +13,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from cache import AsyncTTL
 from collections import defaultdict
+from itertools import chain
 
 
 MAX_ERROR_TIMES = 10
-MAX_AIOHTTP_TASKS = 20
+MAX_AIOHTTP_TASKS = 30
 
 
 app = FastAPI()
@@ -85,6 +86,19 @@ async def fetch(session, url):
     raise RuntimeWarning(f"[Back-end] ≥{MAX_ERROR_TIMES} Errors when requesting {url}")
 
 
+async def get_last_page(session: aiohttp.ClientSession, owner: str, name: str, category: str) -> int:
+    per_page = 100
+    url = f"https://api.github.com/repos/{owner}/{name}/{category}?per_page={per_page}"
+    async with session.get(url, headers=headers) as response:
+        if response.status == 200:
+            link_header = response.headers.get('Link', '')
+            links = link_header.split(',')
+            for link in links:
+                if 'rel="last"' in link:
+                    return int(link.split(';')[0].split('=')[-1][:-1])
+    return -1
+
+
 @AsyncTTL(time_to_live=60, maxsize=128)
 async def fetch_json(category: str, owner: str = None, name: str = None):
     if not owner or not name:
@@ -98,18 +112,16 @@ async def fetch_json(category: str, owner: str = None, name: str = None):
         async with aiohttp.ClientSession() as session:
             results = []
             i = 0
-            isEnd = False
-            while not isEnd:
+            coroutine = get_last_page(session, owner, name, category)
+            max_pages = await asyncio.ensure_future(coroutine)
+            while i <= max_pages:
                 tasks = []
-                for url in [link + f'?per_page=100&page={j}' for j in range(i, i + MAX_AIOHTTP_TASKS)]:
+                per_page = 100
+                for url in [link + f'?per_page={per_page}&page={j}' for j in range(i, min(i + MAX_AIOHTTP_TASKS, max_pages + 1))]:
                     tasks.append(fetch(session, url))
                 contents = await asyncio.gather(*tasks)
                 i += MAX_AIOHTTP_TASKS
-                for content in contents:
-                    if content == []:
-                        isEnd = True
-                        break
-                    results.extend(content)
+                results.extend(list(chain(*contents)))
             return results
 
     else:
