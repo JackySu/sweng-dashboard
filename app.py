@@ -199,14 +199,10 @@ async def get_stats_code_frequency_data(owner: str = None, name: str = None):
     deletion = []
     timeline = []
     for item in data:
-        dt = datetime.datetime.fromtimestamp(item[0])
+        dt = formatted_utc_time(item[0])[:10]
         timeline.append(dt)
-        if (item[1] + item[2] == 0):
-            addition.append({'value': item[1], 'percent': item[1]})
-            deletion.append({'value': item[2], 'percent': item[2]})
-        else:
-            addition.append({'value': item[1], 'percent': item[1] / (item[1] - item[2])})
-            deletion.append({'value': item[2], 'percent': item[2] / (item[2] - item[1])})
+        addition.append(item[1])
+        deletion.append(item[2])
 
     return {'timeline': timeline, 'addition': addition, 'deletion': deletion}
 
