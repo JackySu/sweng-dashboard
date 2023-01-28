@@ -4,5 +4,6 @@ psutil
 datetime
 uvicorn[standard]
 gunicorn==20.1.0
-fastapi
+fastapi==0.86.0
+pydantic==1.10.0a1
 async-cache
